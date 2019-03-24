@@ -1,0 +1,8 @@
+
+# local files
+volumes/elastic
+
+# node_modules (required for prisma)
+node_modules
+package-lock.json
+

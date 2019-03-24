@@ -1,0 +1,24 @@
+{
+  "name": "cms-utilization-search",
+  "version": "1.0.0",
+  "description": "## Getting Started",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sudowing/cms-utilization-search.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/sudowing/cms-utilization-search/issues"
+  },
+  "homepage": "https://github.com/sudowing/cms-utilization-search#readme",
+  "dependencies": {
+    "elasticsearch": "^15.4.1",
+    "knex": "^0.16.3",
+    "pg": "^7.9.0"
+  }
+}
