@@ -6,10 +6,11 @@ function countProviders() {
 }
 module.exports.countProviders = countProviders
 
-function readProviders(lmt = 10) {
+function readProviders(lmt = 10, off=0) {
   return db.from('cms.providers')
     .select(['npi', 'entity_type', 'address_latitude', 'address_longitude'])
     .limit(lmt)
+    .offset(off)
 }
 module.exports.readProviders = readProviders
 
