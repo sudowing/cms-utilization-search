@@ -1,21 +1,19 @@
-const net = require('./network-resources')
-const data = require('./queries.js')
+const net = require('../../network-resources.js')
+const data = require('./provider-performances.queries.js')
 const es = net.elasticsearch
 
 
 const run = async () => {
-    for (let n=0; n<3; ++n) {
-        const limit = 5
+    const countResponse = await data.countProviders()
+    const count = parseInt(countResponse[0].count, 10)
+    console.log(count)
+    
+    for (let n=0; n<150; ++n) {
+        const limit = 10
         const offset = n * limit
 
         const message = `PROCESSING BATCH #${n} (${limit})`
         console.log(message)
-
-        
-
-        const countResponse = await data.countProviders()
-        const count = parseInt(countResponse[0].count, 10)
-        console.log(count)
 
         const providers = await data.readProviders(limit, offset).map(provider => {
             return {
@@ -80,7 +78,6 @@ const run = async () => {
 
         console.log(JSON.stringify(indexResponse))
     }
-            
     process.exit(0)
 
 }

@@ -1,4 +1,4 @@
-const net = require('./network-resources')
+const net = require('../../network-resources.js')
 const es = net.elasticsearch
 
 const settings = {

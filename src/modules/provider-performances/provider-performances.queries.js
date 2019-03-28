@@ -1,4 +1,4 @@
-const net = require('./network-resources.js')
+const net = require('../../network-resources.js')
 const db = net.db
 
 function countProviders() {
@@ -6,12 +6,36 @@ function countProviders() {
 }
 module.exports.countProviders = countProviders
 
-function readProviders(lmt = 10, off=0) {
+function _readProviders(lmt = 10, off=0) {
   return db.from('cms.providers')
     .select(['npi', 'entity_type', 'address_latitude', 'address_longitude'])
     .limit(lmt)
     .offset(off)
 }
+
+function readProviders(lmt = 10, off=0) {
+  const qry = db.from('cms.providers')
+    .select(['providers.npi', 'entity_type', 'address_latitude', 'address_longitude'])
+    .leftOuterJoin('cms.newtable', function() {
+      this.on('newtable.npi', '=', 'providers.npi')
+    })
+    .whereNull('newtable.npi')
+    .limit(lmt)
+    .offset(off)
+
+  console.log('')
+  console.log('')
+  console.log('---------------')
+  console.log('qry')
+  console.log(qry.toString())
+  console.log('---------------')
+  console.log('')
+  console.log('')
+
+  return qry
+}
+
+
 module.exports.readProviders = readProviders
 
 const performanceFields = [

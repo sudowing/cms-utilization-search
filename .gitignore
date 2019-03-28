@@ -1,8 +1,11 @@
 
 # local files
-volumes/elastic
-
-# node_modules (required for prisma)
 node_modules
 package-lock.json
 
+volumes/elastic
+volumes/elastic_dumps.real
+volumes/elastic_dumps
+
+# reserved namespace for util files helpful for completing index
+index_ids*
