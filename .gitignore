@@ -3,8 +3,10 @@
 node_modules
 package-lock.json
 
+# vols
 volumes/elastic
 volumes/elastic_dumps
+temp
 
 # reserved namespace for util files helpful for completing index
 index_ids*
