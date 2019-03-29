@@ -8,11 +8,9 @@
     "config-services": "node src/modules/services/services.index-config.js",
     "seed-services": "node src/modules/services/services.index-seed.js",
     "list-services-ids": "node src/utils/writeIndexIdsToFile.js services",
-
     "config-providers": "node src/modules/providers/providers.index-config.js",
     "seed-providers": "node src/modules/providers/providers.index-seed.js",
     "list-providers-ids": "node src/utils/writeIndexIdsToFile.js providers",
-
     "config-provider-performances": "node src/modules/provider-performances/provider-performances.index-config.js",
     "seed-provider-performances": "node src/modules/provider-performances/provider-performances.index-seed.js",
     "list-provider-performances-ids": "node src/utils/writeIndexIdsToFile.js provider-performances"

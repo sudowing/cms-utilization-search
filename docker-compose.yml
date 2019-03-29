@@ -1,33 +1,11 @@
 version: "2"
 services:
-  mfa-postgres:
-    image: postgres
-    environment:
-      POSTGRES_DB: mfa
-      POSTGRES_USER: dbuser
-      POSTGRES_PASSWORD: dbpassword
-    networks:
-      - data
-    volumes:
-      - ./volumes/db/data:/var/lib/postgresql/data
-  mfa-redis:
-    image: redis
-    networks:
-      - cache
-  mfa-api:
-    image: sudowing/u2f-server:latest
-    depends_on:
-      - mfa-postgres
-      - mfa-redis
+  cms-search:
+    image: docker.elastic.co/elasticsearch/elasticsearch:6.6.2
     ports:
-      - "8443:8443"
-    networks:
-      - data
-      - cache
+      - "9200:9200"
+      - "9300:9300"
+    volumes:
+      - ./volumes/elastic:/usr/share/elasticsearch/data
     environment:
-      DB_URL: postgres://dbuser:dbpassword@mfa-postgres:5432/mfa
-      REDIS_HOST: mfa-redis
-      N_BASE_BACKUP_CODE: 4
-networks:
-  data: {}
-  cache: {}
+      discovery.type: single-node
