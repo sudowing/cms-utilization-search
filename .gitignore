@@ -6,6 +6,7 @@ package-lock.json
 # vols
 volumes/elastic
 volumes/elastic_dumps
+volumes/elastic_dumps.tar*
 temp
 
 # reserved namespace for util files helpful for completing index
