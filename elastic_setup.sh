@@ -45,21 +45,21 @@ docker run --rm -ti taskrabbit/elasticsearch-dump \
 
 # Backup index data to a file:
 docker run --net=host --rm -ti \
--v /Users/joe/Documents/dev/repos/cms-utilization-search/volumes/elastic_dumps:/tmp \
+-v /Users/joe/Documents/dev/repos/cms-utilization-search/volumes/elastic_exports:/tmp \
 taskrabbit/elasticsearch-dump \
   --input=http://localhost:9200/provider-performance \
   --output=/tmp/provider-performance.analyzer.json \
   --type=analyzer
 
 docker run --net=host --rm -ti \
--v /Users/joe/Documents/dev/repos/cms-utilization-search/volumes/elastic_dumps:/tmp \
+-v /Users/joe/Documents/dev/repos/cms-utilization-search/volumes/elastic_exports:/tmp \
 taskrabbit/elasticsearch-dump \
   --input=http://localhost:9200/provider-performance \
   --output=/tmp/provider-performance.mapping.json \
   --type=mapping
 
 docker run --net=host --rm -ti \
--v /Users/joe/Documents/dev/repos/cms-utilization-search/volumes/elastic_dumps:/tmp \
+-v /Users/joe/Documents/dev/repos/cms-utilization-search/volumes/elastic_exports:/tmp \
 taskrabbit/elasticsearch-dump \
   --input=http://localhost:9200/provider-performance \
   --output=/tmp/provider-performance.data.json \
@@ -69,21 +69,21 @@ taskrabbit/elasticsearch-dump \
 
 # Backup index data to a file:
 docker run --net=host --rm -ti \
--v /Users/joe/Documents/dev/repos/cms-utilization-search/volumes/elastic_dumps:/tmp \
+-v /Users/joe/Documents/dev/repos/cms-utilization-search/volumes/elastic_exports:/tmp \
 taskrabbit/elasticsearch-dump \
   --input=/tmp/provider-performance.analyzer.json \
   --output=http://localhost:9200/provider-performance \
   --type=analyzer
 
 docker run --net=host --rm -ti \
--v /Users/joe/Documents/dev/repos/cms-utilization-search/volumes/elastic_dumps:/tmp \
+-v /Users/joe/Documents/dev/repos/cms-utilization-search/volumes/elastic_exports:/tmp \
 taskrabbit/elasticsearch-dump \
   --input=/tmp/provider-performance.mapping.json \
   --output=http://localhost:9200/provider-performance \
   --type=mapping
 
 docker run --net=host --rm -ti \
--v /Users/joe/Documents/dev/repos/cms-utilization-search/volumes/elastic_dumps:/tmp \
+-v /Users/joe/Documents/dev/repos/cms-utilization-search/volumes/elastic_exports:/tmp \
 taskrabbit/elasticsearch-dump \
   --input=/tmp/provider-performance.data.json \
   --output=http://localhost:9200/provider-performance \
@@ -113,21 +113,21 @@ taskrabbit/elasticsearch-dump \
 
 # Backup index data to a file:
 docker run --net=host --rm -ti \
--v /Users/joe/Documents/dev/repos/cms-utilization-search/volumes/elastic_dumps:/tmp \
+-v /Users/joe/Documents/dev/repos/cms-utilization-search/volumes/elastic_exports:/tmp \
 taskrabbit/elasticsearch-dump \
   --input=http://localhost:9200/providers \
   --output=/tmp/providers.analyzer.json \
   --type=analyzer
 
 docker run --net=host --rm -ti \
--v /Users/joe/Documents/dev/repos/cms-utilization-search/volumes/elastic_dumps:/tmp \
+-v /Users/joe/Documents/dev/repos/cms-utilization-search/volumes/elastic_exports:/tmp \
 taskrabbit/elasticsearch-dump \
   --input=http://localhost:9200/providers \
   --output=/tmp/providers.mapping.json \
   --type=mapping
 
 docker run --net=host --rm -ti \
--v /Users/joe/Documents/dev/repos/cms-utilization-search/volumes/elastic_dumps:/tmp \
+-v /Users/joe/Documents/dev/repos/cms-utilization-search/volumes/elastic_exports:/tmp \
 taskrabbit/elasticsearch-dump \
   --input=http://localhost:9200/providers \
   --output=/tmp/providers.data.json \
@@ -157,26 +157,26 @@ taskrabbit/elasticsearch-dump \
 
 
 
-rm volumes/elastic_dumps/services.analyzer.json
+rm volumes/elastic_exports/services.analyzer.json
 # Backup index data to a file:
 docker run --net=host --rm -ti \
--v /Users/joe/Documents/dev/repos/cms-utilization-search/volumes/elastic_dumps:/tmp \
+-v /Users/joe/Documents/dev/repos/cms-utilization-search/volumes/elastic_exports:/tmp \
 taskrabbit/elasticsearch-dump \
   --input=http://localhost:9200/services \
   --output=/tmp/services.analyzer.json \
   --type=analyzer
 
-rm volumes/elastic_dumps/services.mapping.json
+rm volumes/elastic_exports/services.mapping.json
 docker run --net=host --rm -ti \
--v /Users/joe/Documents/dev/repos/cms-utilization-search/volumes/elastic_dumps:/tmp \
+-v /Users/joe/Documents/dev/repos/cms-utilization-search/volumes/elastic_exports:/tmp \
 taskrabbit/elasticsearch-dump \
   --input=http://localhost:9200/services \
   --output=/tmp/services.mapping.json \
   --type=mapping
 
-rm volumes/elastic_dumps/services.data.json
+rm volumes/elastic_exports/services.data.json
 docker run --net=host --rm -ti \
--v /Users/joe/Documents/dev/repos/cms-utilization-search/volumes/elastic_dumps:/tmp \
+-v /Users/joe/Documents/dev/repos/cms-utilization-search/volumes/elastic_exports:/tmp \
 taskrabbit/elasticsearch-dump \
   --input=http://localhost:9200/services \
   --output=/tmp/services.data.json \
@@ -205,23 +205,23 @@ taskrabbit/elasticsearch-dump \
 docker run --net=host --rm -ti taskrabbit/elasticsearch-dump \
   --type=analyzer \
   --input=http://localhost:9200/services \
-  --output=$ | gzip -d volumes/elastic_dumps/services.analyzer.json.gz
+  --output=$ | gzip -d volumes/elastic_exports/services.analyzer.json.gz
 ---------------------------------
 docker run --net=host --rm -ti taskrabbit/elasticsearch-dump \
   --type=mapping \
   --input=http://localhost:9200/services \
-  --output=$ | gzip > volumes/elastic_dumps/services.mapping.json.gz
+  --output=$ | gzip > volumes/elastic_exports/services.mapping.json.gz
 ---------------------------------
 docker run --net=host --rm -ti taskrabbit/elasticsearch-dump \
   --type=data \
   --input=http://localhost:9200/services \
-  --output=$ | gzip > volumes/elastic_dumps/services.data.json.gz
+  --output=$ | gzip > volumes/elastic_exports/services.data.json.gz
 ===================================
 ===================================
 # Backup index data to a file:
 docker run --net=host --rm -ti taskrabbit/elasticsearch-dump \
   --type=analyzer \
   --output=http://localhost:9200/services \
-  --input=$ cat volumes/elastic_dumps/services.analyzer.json.gz | gzip -d
+  --input=$ cat volumes/elastic_exports/services.analyzer.json.gz | gzip -d
 
 

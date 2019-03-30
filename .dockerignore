@@ -1,5 +1,6 @@
 .git
 .gitignore
 .vscode
-volumes
+volumes/elastic
+volumes/elastic_exports
 node_modules

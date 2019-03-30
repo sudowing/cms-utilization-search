@@ -3,6 +3,8 @@
 PROJ_NAME = "cms-utilization-search"
 CONTAINER_DEV_IMAGE = "sudowing/cms-utilization-search:develop"
 PWD = $(shell pwd)
+ES_SERVICE = "http://localhost:9200"
+
 build:
 	docker build --pull -t $(CONTAINER_DEV_IMAGE) -f docker/Dockerfile .
 
@@ -22,147 +24,166 @@ stop:
 	@docker-compose stop
 
 clean:
-	@docker-compose -f docker-compose.yml -f docker-compose.development.yml down --remove-orphan
-
-run:
-	make build
-	@docker-compose -f docker-compose.yml -f docker-compose.development.yml up
+	@docker-compose -f docker-compose.yml down --remove-orphan
 
 start:
 	@docker-compose -f docker-compose.yml up -d
 
 export-services:
 	# remove previous backups
-	rm volumes/elastic_dumps/services*.json
+	rm volumes/elastic_exports/services*.json
 	# EXPORT Index: services
 	docker run --net=host --rm -ti \
-		-v ${PWD}/volumes/elastic_dumps:/tmp \
-		taskrabbit/elasticsearch-dump \
-		--input=http://localhost:9200/services \
+		-v ${PWD}/volumes/elastic_exports:/tmp/elastic_exports \
+		sudowing/cms-utilization-search:latest \
+		--input=${ES_SERVICE}/services \
 		--output=/tmp/services.analyzer.json \
 		--type=analyzer
 	docker run --net=host --rm -ti \
-		-v ${PWD}/volumes/elastic_dumps:/tmp \
-		taskrabbit/elasticsearch-dump \
-		--input=http://localhost:9200/services \
+		-v ${PWD}/volumes/elastic_exports:/tmp/elastic_exports \
+		sudowing/cms-utilization-search:latest \
+		--input=${ES_SERVICE}/services \
 		--output=/tmp/services.mapping.json \
 		--type=mapping
 	docker run --net=host --rm -ti \
-		-v ${PWD}/volumes/elastic_dumps:/tmp \
-		taskrabbit/elasticsearch-dump \
-		--input=http://localhost:9200/services \
+		-v ${PWD}/volumes/elastic_exports:/tmp/elastic_exports \
+		sudowing/cms-utilization-search:latest \
+		--input=${ES_SERVICE}/services \
 		--output=/tmp/services.data.json \
 		--type=data
 
 export-providers:
 	# remove previous backups
-	rm volumes/elastic_dumps/providers*.json
+	rm volumes/elastic_exports/providers*.json
 	# EXPORT Index: providers
 	docker run --net=host --rm -ti \
-		-v ${PWD}/volumes/elastic_dumps:/tmp \
-		taskrabbit/elasticsearch-dump \
-		--input=http://localhost:9200/providers \
+		-v ${PWD}/volumes/elastic_exports:/tmp/elastic_exports \
+		sudowing/cms-utilization-search:latest \
+		--input=${ES_SERVICE}/providers \
 		--output=/tmp/providers.analyzer.json \
 		--type=analyzer
 	docker run --net=host --rm -ti \
-		-v ${PWD}/volumes/elastic_dumps:/tmp \
-		taskrabbit/elasticsearch-dump \
-		--input=http://localhost:9200/providers \
+		-v ${PWD}/volumes/elastic_exports:/tmp/elastic_exports \
+		sudowing/cms-utilization-search:latest \
+		--input=${ES_SERVICE}/providers \
 		--output=/tmp/providers.mapping.json \
 		--type=mapping
 	docker run --net=host --rm -ti \
-		-v ${PWD}/volumes/elastic_dumps:/tmp \
-		taskrabbit/elasticsearch-dump \
-		--input=http://localhost:9200/providers \
+		-v ${PWD}/volumes/elastic_exports:/tmp/elastic_exports \
+		sudowing/cms-utilization-search:latest \
+		--input=${ES_SERVICE}/providers \
 		--output=/tmp/providers.data.json \
 		--type=data
 
 export-provider-performance:
 	# remove previous backups
-	rm volumes/elastic_dumps/provider-performance*.json
+	rm volumes/elastic_exports/provider-performance*.json
 	# EXPORT Index: provider-performance
 	docker run --net=host --rm -ti \
-		-v ${PWD}/volumes/elastic_dumps:/tmp \
-		taskrabbit/elasticsearch-dump \
-		--input=http://localhost:9200/provider-performance \
+		-v ${PWD}/volumes/elastic_exports:/tmp/elastic_exports \
+		sudowing/cms-utilization-search:latest \
+		--input=${ES_SERVICE}/provider-performance \
 		--output=/tmp/provider-performance.analyzer.json \
 		--type=analyzer
 	docker run --net=host --rm -ti \
-		-v ${PWD}/volumes/elastic_dumps:/tmp \
-		taskrabbit/elasticsearch-dump \
-		--input=http://localhost:9200/provider-performance \
+		-v ${PWD}/volumes/elastic_exports:/tmp/elastic_exports \
+		sudowing/cms-utilization-search:latest \
+		--input=${ES_SERVICE}/provider-performance \
 		--output=/tmp/provider-performance.mapping.json \
 		--type=mapping
 	docker run --net=host --rm -ti \
-		-v ${PWD}/volumes/elastic_dumps:/tmp \
-		taskrabbit/elasticsearch-dump \
-		--input=http://localhost:9200/provider-performance \
+		-v ${PWD}/volumes/elastic_exports:/tmp/elastic_exports \
+		sudowing/cms-utilization-search:latest \
+		--input=${ES_SERVICE}/provider-performance \
 		--output=/tmp/provider-performance.data.json \
 		--type=data
+
+export:
+	make export-services
+	make export-providers
+	make export-provider-performance
+
+compress:
+	cd ${PWD}/volumes && tar -cjvf elastic_exports.tar.bz2 elastic_exports/ && cd ${PWD}
+
+uncompress-to-disk:
+	docker run \
+	--rm \
+	-v ${PWD}/volumes/elastic_exports:/tmp/elastic_exports \
+	--entrypoint bash \
+	--name cms-elasticsearch-exporter \
+	sudowing/cms-utilization-search:develop \
+	-c 'tar -xvf /elastic_exports.tar.bz2 -C /tmp'
 
 import-services:
 	# IMPORT Index: services
 	docker run --net=host --rm -ti \
-		-v ${PWD}/volumes/elastic_dumps:/tmp \
-		taskrabbit/elasticsearch-dump \
-		--input=/tmp/services.analyzer.json \
-		--output=http://localhost:9200/services \
+		-v ${PWD}/volumes/elastic_exports:/tmp/elastic_exports \
+		sudowing/cms-utilization-search:latest \
+		--input=/tmp/elastic_exports/services.analyzer.json \
+		--output=${ES_SERVICE}/services \
 		--type=analyzer
 	docker run --net=host --rm -ti \
-		-v ${PWD}/volumes/elastic_dumps:/tmp \
-		taskrabbit/elasticsearch-dump \
-		--input=/tmp/services.mapping.json \
-		--output=http://localhost:9200/services \
+		-v ${PWD}/volumes/elastic_exports:/tmp/elastic_exports \
+		sudowing/cms-utilization-search:latest \
+		--input=/tmp/elastic_exports/services.mapping.json \
+		--output=${ES_SERVICE}/services \
 		--type=mapping
 	docker run --net=host --rm -ti \
-		-v ${PWD}/volumes/elastic_dumps:/tmp \
-		taskrabbit/elasticsearch-dump \
-		--input=/tmp/services.data.json \
-		--output=http://localhost:9200/services \
+		-v ${PWD}/volumes/elastic_exports:/tmp/elastic_exports \
+		sudowing/cms-utilization-search:latest \
+		--input=/tmp/elastic_exports/services.data.json \
+		--output=${ES_SERVICE}/services \
 		--type=data
 
 import-providers:
 	# IMPORT Index: providers
 	docker run --net=host --rm -ti \
-		-v ${PWD}/volumes/elastic_dumps:/tmp \
-		taskrabbit/elasticsearch-dump \
-		--input=/tmp/providers.analyzer.json \
-		--output=http://localhost:9200/providers \
+		-v ${PWD}/volumes/elastic_exports:/tmp/elastic_exports \
+		sudowing/cms-utilization-search:latest \
+		--input=/tmp/elastic_exports/providers.analyzer.json \
+		--output=${ES_SERVICE}/providers \
 		--type=analyzer
 	docker run --net=host --rm -ti \
-		-v ${PWD}/volumes/elastic_dumps:/tmp \
-		taskrabbit/elasticsearch-dump \
-		--input=/tmp/providers.mapping.json \
-		--output=http://localhost:9200/providers \
+		-v ${PWD}/volumes/elastic_exports:/tmp/elastic_exports \
+		sudowing/cms-utilization-search:latest \
+		--input=/tmp/elastic_exports/providers.mapping.json \
+		--output=${ES_SERVICE}/providers \
 		--type=mapping
 	docker run --net=host --rm -ti \
-		-v ${PWD}/volumes/elastic_dumps:/tmp \
-		taskrabbit/elasticsearch-dump \
-		--input=/tmp/providers.data.json \
-		--output=http://localhost:9200/providers \
+		-v ${PWD}/volumes/elastic_exports:/tmp/elastic_exports \
+		sudowing/cms-utilization-search:latest \
+		--input=/tmp/elastic_exports/providers.data.json \
+		--output=${ES_SERVICE}/providers \
 		--type=data
 
 import-provider-performance:
 	# IMPORT Index: provider-performance
 	docker run --net=host --rm -ti \
-		-v ${PWD}/volumes/elastic_dumps:/tmp \
-		taskrabbit/elasticsearch-dump \
-		--input=/tmp/provider-performance.analyzer.json \
-		--output=http://localhost:9200/provider-performance \
+		-v ${PWD}/volumes/elastic_exports:/tmp/elastic_exports \
+		sudowing/cms-utilization-search:latest \
+		--input=/tmp/elastic_exports/provider-performance.analyzer.json \
+		--output=${ES_SERVICE}/provider-performance \
 		--type=analyzer
 	docker run --net=host --rm -ti \
-		-v ${PWD}/volumes/elastic_dumps:/tmp \
-		taskrabbit/elasticsearch-dump \
-		--input=/tmp/provider-performance.mapping.json \
-		--output=http://localhost:9200/provider-performance \
+		-v ${PWD}/volumes/elastic_exports:/tmp/elastic_exports \
+		sudowing/cms-utilization-search:latest \
+		--input=/tmp/elastic_exports/provider-performance.mapping.json \
+		--output=${ES_SERVICE}/provider-performance \
 		--type=mapping
 	docker run --net=host --rm -ti \
-		-v ${PWD}/volumes/elastic_dumps:/tmp \
-		taskrabbit/elasticsearch-dump \
-		--input=/tmp/provider-performance.data.json \
-		--output=http://localhost:9200/provider-performance \
+		-v ${PWD}/volumes/elastic_exports:/tmp/elastic_exports \
+		sudowing/cms-utilization-search:latest \
+		--input=/tmp/elastic_exports/provider-performance.data.json \
+		--output=${ES_SERVICE}/provider-performance \
 		--type=data
 
-compress:
-	tar -cjvf ${PWD}/volumes/elastic_dumps.tar.bz2 ${PWD}/volumes/elastic_dumps/
-	# tar -xvf volumes/elastic_dumps.tar.bz2 -C volumes/elastic_dumps_new_bz2
+import:
+	make import-services
+	make import-providers
+	make import-provider-performance
+
+load:
+	make uncompress-to-disk
+	make import
+
