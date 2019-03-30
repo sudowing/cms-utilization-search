@@ -162,3 +162,7 @@ import-provider-performance:
 		--input=/tmp/provider-performance.data.json \
 		--output=http://localhost:9200/provider-performance \
 		--type=data
+
+compress:
+	tar -cjvf ${PWD}/volumes/elastic_dumps.tar.bz2 ${PWD}/volumes/elastic_dumps/
+	# tar -xvf volumes/elastic_dumps.tar.bz2 -C volumes/elastic_dumps_new_bz2

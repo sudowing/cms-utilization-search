@@ -4,7 +4,6 @@ const net = require('../network-resources')
 const es = net.elasticsearch
 
 var args = process.argv.slice(2);
-console.log(args)
 
 const indx = args[0]
 const typ = 'record'
