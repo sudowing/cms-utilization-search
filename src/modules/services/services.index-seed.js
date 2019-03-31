@@ -4,7 +4,7 @@ const net = require('../../network-resources.js')
 const data = require('./services.queries.js')
 const es = net.elasticsearch
 
-const limit = 100
+const limit = 20
 
 const run = async () => {
 

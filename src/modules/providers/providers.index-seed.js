@@ -12,7 +12,7 @@ const args = process.argv.slice(2);
 
 const providerType = args[0] && args[0] === "organizations" ? 'O' : 'I'
 const exclude = args[1] && args[1] === "rerun"
-const limit = 100
+const limit = 20
 const logger = console
 
 const run = async (providerType, exclude= false) => {

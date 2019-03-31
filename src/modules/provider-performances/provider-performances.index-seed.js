@@ -9,7 +9,7 @@ const es = net.elasticsearch
 const args = process.argv.slice(2);
 const docBuilder = perfHelpers.docBuilder
 const exclude = args[0] && args[0] === "rerun"
-const limit = 100
+const limit = 20
 const logger = console
 const perfTypeCaster = perfHelpers.perfTypeCaster
 
