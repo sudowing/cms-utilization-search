@@ -1,16 +1,33 @@
+const ProgressBar = require('progress');
+
 const net = require('../../network-resources.js')
 const data = require('./services.queries.js')
 const es = net.elasticsearch
 
+const limit = 100
 
 const run = async () => {
 
-    for (let n=0; n<603; ++n) {
-        const limit = 10
+    const dbResponseCountTotalServices = await data.countServices()
+    const countTotalServices = dbResponseCountTotalServices[0].count
+
+    const count = parseInt(countTotalServices, 10)
+
+    console.log(`# Records to Index 'services': ${count}`)
+    const bar = new ProgressBar('  reporting to DB [:bar] :rate/documents-per-second :percent :etas', {
+      complete: '=',
+      incomplete: ' ',
+      width: 20,
+      total: count
+    });
+      
+    const batches = Math.ceil(count / limit)
+    
+    for (let n=0; n<batches; ++n) {
         const offset = n * limit
 
         const message = `PROCESSING BATCH #${n} (${limit})`
-        console.log(message)
+        // console.log(message)
 
         const servicesRaw = await data.readServices(limit, offset)
 
@@ -62,13 +79,10 @@ const run = async () => {
             console.log('error: ')
             console.log(e)
         })
-                  
 
-        console.log(JSON.stringify(indexResponse))
-
+        bar.tick(services.length)
 
     }
-    
 
     process.exit(0)
 

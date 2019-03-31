@@ -54,3 +54,19 @@ index 'services' short N documents
 index 'providers' short N documents
 index 'providerPerformance' short N documents
 ----------
+
+
+
+
+
+
+npm run report-index-status
+    npm run list-providers-ids
+    npm run seed-providers-organizations-rerun
+    npm run seed-providers-individuals-rerun
+
+npm run report-index-status
+    npm run list-provider-performances-ids
+    npm run seed-provider-performances-rerun
+
+

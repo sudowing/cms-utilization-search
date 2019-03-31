@@ -1,3 +1,4 @@
+const ProgressBar = require('progress');
 const net = require('../../network-resources.js')
 const helpers = require('../../utils/indexHelpers')
 const perfHelpers = require('./provider-performances.helpers')
@@ -8,7 +9,7 @@ const es = net.elasticsearch
 const args = process.argv.slice(2);
 const docBuilder = perfHelpers.docBuilder
 const exclude = args[0] && args[0] === "rerun"
-const limit = 10
+const limit = 100
 const logger = console
 const perfTypeCaster = perfHelpers.perfTypeCaster
 
@@ -23,19 +24,24 @@ const run = async (exclude= false) => {
         const countIndexedProviders = dbResponseCountIndexedProviders[0].count
         providersRemaining = countTotalProviders - countIndexedProviders
     }
-    
+
     const count = parseInt(providersRemaining, 10)
-    
-    logger.log('count', count)
 
-
+    console.log(`# Records to Index 'provider-performance': ${count}`)
+    const bar = new ProgressBar('  reporting to DB [:bar] :rate/documents-per-second :percent :etas', {
+      complete: '=',
+      incomplete: ' ',
+      width: 20,
+      total: count
+    });
+      
     const batches = Math.ceil(count / limit)
     
     for (let n=0; n<batches; ++n) {
         const offset = n * limit
 
         const message = `BATCH ${n}/${batches} (size: ${limit})`
-        logger.log(message)
+        // logger.log(message)
 
         const providers = await data.readProviders(limit, offset, exclude).map(docBuilder)
     
@@ -72,8 +78,8 @@ const run = async (exclude= false) => {
 
         const report = reporter(indexResponse.items)
 
-        logger.log(`  :: successful: ${report.successful}`)
-        logger.log(`  :: failed: ${report.failed}`)
+        bar.tick(documents.length)
+
     }
     process.exit(0)
 

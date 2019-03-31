@@ -1,3 +1,5 @@
+const ProgressBar = require('progress');
+
 const net = require('../../network-resources.js')
 const helpers = require('../../utils/indexHelpers')
 const data = require('./providers.queries.js')
@@ -10,7 +12,7 @@ const args = process.argv.slice(2);
 
 const providerType = args[0] && args[0] === "organizations" ? 'O' : 'I'
 const exclude = args[1] && args[1] === "rerun"
-const limit = 10
+const limit = 100
 const logger = console
 
 const run = async (providerType, exclude= false) => {
@@ -26,8 +28,14 @@ const run = async (providerType, exclude= false) => {
     
     const count = parseInt(providersRemaining, 10)
     
-    logger.log('count', count)
-
+    console.log(`# Records to Index 'providers': ${count}`)
+    const bar = new ProgressBar('  reporting to DB [:bar] :rate/documents-per-second :percent :etas', {
+      complete: '=',
+      incomplete: ' ',
+      width: 20,
+      total: count
+    });
+      
 
     const batches = Math.ceil(count / limit)
     
@@ -35,7 +43,7 @@ const run = async (providerType, exclude= false) => {
         const offset = n * limit
 
         const message = `BATCH ${n}/${batches} (size: ${limit})`
-        logger.log(message)
+        // logger.log(message)
 
         let recordFetcher = data.readProvidersIndivituals
         let recordMapper = providerHelpers.individualMapper
@@ -63,8 +71,7 @@ const run = async (providerType, exclude= false) => {
 
         const report = reporter(indexResponse.items)
 
-        logger.log(`  :: successful: ${report.successful}`)
-        logger.log(`  :: failed: ${report.failed}`)
+        bar.tick(providers.length)
                   
     }
 
