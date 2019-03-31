@@ -1,87 +1,51 @@
 const net = require('../../network-resources.js')
+const helpers = require('../../utils/indexHelpers')
 const data = require('./providers.queries.js')
+const reporter = helpers.genIndexReport
+const providerHelpers = require('./providers.helpers')
+
 const es = net.elasticsearch
 
+const args = process.argv.slice(2);
 
-const run = async () => {
-    const countResponse = await data.countProviders()
-    const count = parseInt(countResponse[0].count, 10)
-    console.log(count)
+const providerType = args[0] && args[0] === "organizations" ? 'O' : 'I'
+const exclude = args[1] && args[1] === "rerun"
+const limit = 10
+const logger = console
+
+const run = async (providerType, exclude= false) => {
+    const dbResponseCountTotalProviders = await data.countProviders(providerType)
+    const countTotalProviders = dbResponseCountTotalProviders[0].count
+
+    let providersRemaining = countTotalProviders
+    if (exclude) {
+        const dbResponseCountIndexedProviders = await data.countProviders(providerType, exclude)
+        const countIndexedProviders = dbResponseCountIndexedProviders[0].count
+        providersRemaining = countTotalProviders - countIndexedProviders
+    }
     
-    // for (let n=0; n<9391; ++n) {
-    //     const limit = 100
-    //     const offset = n * limit
-
-    //     const message = `PROCESSING BATCH #${n} (${limit})`
-    //     console.log(message)
-
-    //     const providers = await data.readProvidersIndivituals(limit, offset).map(provider => {
-    //         const output = {
-    //             ...provider,
-    //             suggest: [
-    //                 {
-    //                     input: `${provider.name_last}, ${provider.name_first}`,
-    //                     weight: 10,
-    //                 },
-    //                 {
-    //                     input: `${provider.name_last} ${provider.name_first}`,
-    //                     weight: 9,
-    //                 },
-    //                 {
-    //                     input: `${provider.name_first} ${provider.name_last}`,
-    //                     weight: 8,
-    //                 },
-    //                 {
-    //                     input: provider.name_last,
-    //                     weight: 5,
-    //                 },
-    //                 {
-    //                     input: provider.name_first,
-    //                     weight: 1,
-    //                 },
-
-    //             ]
-    //         }
-    //         return output
-    //     })
-
-    //     const batch = []
-
-    //     for (let doc of providers){
-    //         const meta = { index:  { _index: 'providers', _type: 'record', _id: doc.npi } }
-    //         batch.push(meta, doc)
-    //     }
-
-    //     const indexResponse = await es.bulk({
-    //         body: batch
-    //       }).catch(e => {
-    //         console.log('error: ')
-    //         console.log(e)
-    //     })
-                  
-
-    //     console.log(JSON.stringify(indexResponse))
+    const count = parseInt(providersRemaining, 10)
+    
+    logger.log('count', count)
 
 
-    // }
-
-
-
-
-    for (let n=0; n<11; ++n) {
-        const limit = 1
+    const batches = Math.ceil(count / limit)
+    
+    for (let n=0; n<batches; ++n) {
         const offset = n * limit
 
-        const message = `PROCESSING BATCH #${n} (${limit})`
-        console.log(message)
+        const message = `BATCH ${n}/${batches} (size: ${limit})`
+        logger.log(message)
 
-        const providers = await data.readProvidersOrganizations(limit, offset).map(provider => {
-            const output = {
-                ...provider,
-                suggest: [provider.name]
-            }
-            return output
-        })
+        let recordFetcher = data.readProvidersIndivituals
+        let recordMapper = providerHelpers.individualMapper
+
+        if (providerType === 'O') {
+            recordFetcher = data.readProvidersOrganizations
+            recordMapper = providerHelpers.organizationMapper
+        }
+
+        const providers = await recordFetcher(limit, offset, exclude).map(recordMapper)
 
         const batch = []
 
@@ -93,19 +57,18 @@ const run = async () => {
         const indexResponse = await es.bulk({
             body: batch
           }).catch(e => {
-            console.log('error: ')
-            console.log(e)
+            logger.log('error: ')
+            logger.log(e)
         })
+
+        const report = reporter(indexResponse.items)
+
+        logger.log(`  :: successful: ${report.successful}`)
+        logger.log(`  :: failed: ${report.failed}`)
                   
-
-        console.log(JSON.stringify(indexResponse))
-
-
     }
-    
 
     process.exit(0)
-
 }
 
-run()
+run(providerType, exclude)

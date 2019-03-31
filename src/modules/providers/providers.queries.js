@@ -1,9 +1,14 @@
 const net = require('../../network-resources.js')
 const db = net.db
 
-const countProviders = (exclude=false) => {
-  const tbl = exclude ? 'cms.index_contents' : 'cms.providers'
-  return db.from(tbl).count()
+
+const countProviders = (providerType, exclude=false) => {
+  if (exclude) {
+    return db.from('cms.index_contents').count()
+  }
+  return db.from('cms.providers')
+    .where('entity_type', providerType)
+    .count()
 }
 
 const readProvidersIndivituals = (lmt = 10, off=0, exclude=false) => {
@@ -24,7 +29,7 @@ const readProvidersIndivituals = (lmt = 10, off=0, exclude=false) => {
 }
 
 const readProvidersOrganizations = (lmt = 10, off=0, exclude=false) => {
-  const sql = db.from('cms.providers as pro')
+  const qry = db.from('cms.providers as pro')
       .select(['pro.npi', 'entity_type', 'address_city', 'address_state', 'org.name'])
       .join('cms.providers_organizations as org', 'org.npi', 'pro.npi')
       .where('pro.entity_type', 'O')
@@ -42,7 +47,8 @@ const readProvidersOrganizations = (lmt = 10, off=0, exclude=false) => {
   
 
 
-module.exports = {
+
+  module.exports = {
   countProviders,
   readProvidersIndivituals,
   readProvidersOrganizations
