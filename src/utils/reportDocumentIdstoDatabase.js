@@ -1,8 +1,8 @@
 const net = require('../network-resources')
 const { db, elasticsearch: es}  = net
+const prepIndexContentsTable = require('./dbHelpers').prepIndexContentsTable
 const ProgressBar = require('progress');
 const countIndexDocuments = require('../utils/indexHelpers').countIndexDocuments
-
 
 
 
@@ -10,17 +10,7 @@ const insertNpis = async (npis) => {
   return db.insert(npis).into('cms.index_contents')
 }
 
-const prepIndexContentsTable = async () => {
-  await db.schema.withSchema('cms').dropTableIfExists('index_contents')
 
-  await db.schema.withSchema('cms').createTable('index_contents', function(t) {
-      t.integer('npi').primary()
-  })
-
-  await db.schema.withSchema('cms').table('index_contents', function (table) {
-      table.foreign('npi').references('npi').inTable('cms.providers')
-  })
-}
 
 
 const args = process.argv.slice(2);

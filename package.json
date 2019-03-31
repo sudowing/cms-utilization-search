@@ -17,7 +17,8 @@
     "config-provider-performances": "node src/modules/provider-performances/provider-performances.index-config.js",
     "seed-provider-performances": "node src/modules/provider-performances/provider-performances.index-seed.js",
     "seed-provider-performances-rerun": "node src/modules/provider-performances/provider-performances.index-seed.js rerun",
-    "list-provider-performances-ids": "node src/utils/reportDocumentIdstoDatabase.js provider-performance"
+    "list-provider-performances-ids": "node src/utils/reportDocumentIdstoDatabase.js provider-performance",
+    "drop-temp-index-status-table": "node src/utils/dropTempIndexContentsTable.js"
   },
   "repository": {
     "type": "git",

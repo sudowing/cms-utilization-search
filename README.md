@@ -69,4 +69,4 @@ npm run report-index-status
     npm run list-provider-performances-ids
     npm run seed-provider-performances-rerun
 
-
+npm run drop-temp-index-status-table
