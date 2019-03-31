@@ -1,3 +1,6 @@
+const net = require('../network-resources')
+const es = net.elasticsearch
+
 const genIndexReport = (items) => {
     const report = items.reduce((accum, curr) => {
         const { index: record } = curr
@@ -8,6 +11,16 @@ const genIndexReport = (items) => {
     return report
 }
 
+const countIndexDocuments = async (index) => {
+    const { count } = await es.count({
+        index
+    }).catch(e => {
+        console.log('error: ')
+        console.log(e)
+    })
+    return count
+}
+
 module.exports = {
-    genIndexReport
+    genIndexReport, countIndexDocuments
 }

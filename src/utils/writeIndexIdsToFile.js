@@ -1,9 +1,4 @@
-const fs = require('fs');
-const net = require('../network-resources')
-// const data = require('./queries.js')
-const es = net.elasticsearch
-
-var args = process.argv.slice(2);
+const args = process.argv.slice(2);
 
 const indx = args[0]
 const typ = 'record'
@@ -37,7 +32,25 @@ const go = async () => {
     // collect the titles from this response
     for (let hit of response.hits.hits){
       console.log( `index: ${indx} | id: ${hit._id}`);
+
+
+
+
+
+
+
+
+
       file.write(`${hit._id}\n`);
+
+
+
+
+
+
+
+
+
     }
       
     // get the next response if there are more titles to fetch
