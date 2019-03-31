@@ -1,21 +1,29 @@
 const net = require('../../network-resources.js')
+const helpers = require('../../utils/indexHelpers')
+const perfTypeCaster = require('./provider-performances.helpers').perfTypeCaster
 const data = require('./provider-performances.queries.js')
+const reporter = helpers.genIndexReport
 const es = net.elasticsearch
 
+var args = process.argv.slice(2);
+const exclude = args[0] && args[0] === "rerun"
 
-const run = async () => {
-    const countResponse = await data.countProviders()
+const logger = console
+const limit = 10
+
+const run = async (exclude= false) => {
+
+    const countResponse = await data.countProviders(exclude)
     const count = parseInt(countResponse[0].count, 10)
-    console.log(count)
+    const batches = Math.ceil(count / limit)
     
-    for (let n=0; n<150; ++n) {
-        const limit = 10
+    for (let n=0; n<batches; ++n) {
         const offset = n * limit
 
-        const message = `PROCESSING BATCH #${n} (${limit})`
-        console.log(message)
+        const message = `BATCH ${n}/${batches} (size: ${limit})`
+        logger.log(message)
 
-        const providers = await data.readProviders(limit, offset).map(provider => {
+        const providers = await data.readProviders(limit, offset, exclude).map(provider => {
             return {
                 npi: provider.npi,
                 entity_type: provider.entity_type,
@@ -32,26 +40,8 @@ const run = async () => {
         }
         const providerPerformances = await data.readProviderPerformance(providers.map(provider => provider.npi))
         for (let performance of providerPerformances) {
-            performance.mcare_participation_indicator = performance.mcare_participation_indicator === "Y"
-            performance.n_of_svcs = parseFloat(performance.n_of_svcs).toFixed(2)
-            performance.avg_mcare_pay_amt = parseFloat(performance.avg_mcare_pay_amt).toFixed(2)
-            performance.avg_submitted_charge_amt = parseFloat(performance.avg_submitted_charge_amt).toFixed(2)
-            performance.avg_mcare_allowed_amt = parseFloat(performance.avg_mcare_allowed_amt).toFixed(2)
-            performance.avg_mcare_standardized_amt = parseFloat(performance.avg_mcare_standardized_amt).toFixed(2)
-            performance.est_ttl_mcare_pay_amt = parseFloat(performance.est_ttl_mcare_pay_amt).toFixed(2)
-            performance.est_ttl_submitted_charge_amt = parseFloat(performance.est_ttl_submitted_charge_amt).toFixed(2)
-            performance.var_avg_mcare_submitted_charge_pay_amt = parseFloat(performance.var_avg_mcare_submitted_charge_pay_amt).toFixed(2)
-            performance.rank_n_of_svcs = parseInt(performance.rank_n_of_svcs, 10)
-            performance.rank_n_of_distinct_mcare_beneficiary_per_day_svcs = parseInt(performance.rank_n_of_distinct_mcare_beneficiary_per_day_svcs, 10)
-            performance.rank_n_of_mcare_beneficiaries = parseInt(performance.rank_n_of_mcare_beneficiaries, 10)
-            performance.rank_avg_mcare_standardized_amt = parseInt(performance.rank_avg_mcare_standardized_amt, 10)
-            performance.rank_avg_mcare_allowed_amt = parseInt(performance.rank_avg_mcare_allowed_amt, 10)
-            performance.rank_avg_submitted_charge_amt = parseInt(performance.rank_avg_submitted_charge_amt, 10)
-            performance.rank_avg_mcare_pay_amt = parseInt(performance.rank_avg_mcare_pay_amt, 10)
-            performance.rank_est_ttl_mcare_pay_amt = parseInt(performance.rank_est_ttl_mcare_pay_amt, 10)
-            performance.rank_est_ttl_submitted_charge_amt = parseInt(performance.rank_est_ttl_submitted_charge_amt, 10)
-            performance.rank_var_avg_mcare_submitted_charge_pay_amt = parseInt(performance.rank_var_avg_mcare_submitted_charge_pay_amt, 10)
-            batchPerformances[performance.npi].push(performance)
+            const typedRecord = perfTypeCaster(performance)
+            batchPerformances[performance.npi].push(typedRecord)
         }
 
         const documents = providers.map(provider => {
@@ -71,15 +61,18 @@ const run = async () => {
         const indexResponse = await es.bulk({
             body: batch
           }).catch(e => {
-            console.log('error: ')
-            console.log(e)
+            logger.log('error: ')
+            logger.log(e)
         })
+
+        const report = reporter(indexResponse.items)
                   
 
-        console.log(JSON.stringify(indexResponse))
+        logger.log(`  :: successful: ${report.successful}`)
+        logger.log(`  :: failed: ${report.failed}`)
     }
     process.exit(0)
 
 }
 
-run()
+run(exclude)
