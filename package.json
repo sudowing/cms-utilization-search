@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
+    "report-index-status": "node src/utils/confirmIndexComplete.js",
     "config-services": "node src/modules/services/services.index-config.js",
     "seed-services": "node src/modules/services/services.index-seed.js",
     "list-services-ids": "node src/utils/writeIndexIdsToFile.js services",

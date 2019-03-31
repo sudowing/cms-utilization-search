@@ -45,3 +45,12 @@ user    5m39.693s
 sys     0m30.419s
 ---------------------
 
+
+
+npm run report-index-status
+----------
+false
+index 'services' short N documents
+index 'providers' short N documents
+index 'providerPerformance' short N documents
+----------
