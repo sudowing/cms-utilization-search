@@ -1,17 +1,49 @@
+const net = require('../network-resources')
+const { db, elasticsearch: es}  = net
+const ProgressBar = require('progress');
+const countIndexDocuments = require('../utils/indexHelpers').countIndexDocuments
+
+
+
+
+const insertNpis = async (npis) => {
+  return db.insert(npis).into('cms.index_contents')
+}
+
+const prepIndexContentsTable = async () => {
+  await db.schema.withSchema('cms').dropTableIfExists('index_contents')
+
+  await db.schema.withSchema('cms').createTable('index_contents', function(t) {
+      t.integer('npi').primary()
+  })
+
+  await db.schema.withSchema('cms').table('index_contents', function (table) {
+      table.foreign('npi').references('npi').inTable('cms.providers')
+  })
+}
+
+
 const args = process.argv.slice(2);
-
 const indx = args[0]
-const typ = 'record'
-const allIds = [];
-const responseQueue = [];
-
-const file = fs.createWriteStream(`./temp/index_ids.${indx}.txt`);
 
 
 const go = async () => {
+  // create || tuncate table to store npis
+  await prepIndexContentsTable()
+
+  // store doc ids (npis) in temp table from ^^
+  const docCount = await countIndexDocuments(indx)
+  console.log(`Document Count in Index '${indx}': ${docCount}`)
+  const bar = new ProgressBar('  reporting to DB [:bar] :rate/documents-per-second :percent :etas', {
+    complete: '=',
+    incomplete: ' ',
+    width: 20,
+    total: docCount
+  });
+
   const initSearch = await es.search({
     index: indx,
-    type: typ,
+    type: 'record',
     scroll: '30s',
     _source: false,
     body: {
@@ -19,41 +51,23 @@ const go = async () => {
     }
   })
 
-
-  responseQueue.push(initSearch)
+  const responseQueue = [ initSearch];
 
   let keepGoing = true
-
   
   while (keepGoing) {
     const response = responseQueue.shift();
     keepGoing = response.hits.hits.length > 0
   
-    // collect the titles from this response
     for (let hit of response.hits.hits){
-      console.log( `index: ${indx} | id: ${hit._id}`);
-
-
-
-
-
-
-
-
-
-      file.write(`${hit._id}\n`);
-
-
-
-
-
-
-
-
-
+      // bar.tick(1);
+      // file.write(`${}\n`);
     }
+    const npis = response.hits.hits.map(hit => ({ npi: hit._id}))
+    await insertNpis(npis)
+
+    bar.tick(response.hits.hits.length);
       
-    // get the next response if there are more titles to fetch
     responseQueue.push(
       await es.scroll({
         scrollId: response._scroll_id,
