@@ -9,14 +9,3 @@ services:
       - ./volumes/elastic:/usr/share/elasticsearch/data
     environment:
       discovery.type: single-node
-  cms-utilization-search-loader:
-    image: sudowing/cms-utilization-search:master
-
-    restart: always
-    environment:
-      ES_SERVICE_HOST: cms-utilization-search
-      ES_SERVICE_PORT: 9200
-    volumes:
-      - ./volumes/elastic_exports:/tmp/elastic_exports
-    depends_on:
-    - cms-utilization-search

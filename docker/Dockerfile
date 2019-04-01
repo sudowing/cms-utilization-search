@@ -6,7 +6,7 @@ COPY ./volumes/elastic_exports.tar.bz2 /elastic_exports.tar.bz2
 RUN apk add --no-cache bash tar
 RUN npm install elasticdump -g
 
-COPY ./scripts /scripts
+COPY ./scripts/seed.index.sh /scripts/seed.index.sh
 
 ENTRYPOINT ["elasticdump"]
 
