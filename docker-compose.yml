@@ -13,9 +13,9 @@ services:
     image: sudowing/cms-utilization-search:master
 
     restart: always
-    env_file:
-      - './.env'
-
+    environment:
+      ES_SERVICE_HOST: cms-utilization-search
+      ES_SERVICE_PORT: 9200
     volumes:
       - ./volumes/elastic_exports:/tmp/elastic_exports
     depends_on:
