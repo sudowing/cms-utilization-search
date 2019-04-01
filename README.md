@@ -443,3 +443,12 @@ import
 
 
 
+	docker run \
+	--rm \
+    --net=host \
+	-v ${PWD}/volumes/elastic_exports:/tmp/elastic_exports \
+    -e ES_SERVICE="http://localhost:9200" \
+	--entrypoint bash \
+	--name cms-elasticsearch-exporter \
+	sudowing/cms-utilization-search:develop \
+	-c 'bash /scripts/seed.index.sh'

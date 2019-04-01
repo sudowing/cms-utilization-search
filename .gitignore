@@ -4,6 +4,7 @@ node_modules
 package-lock.json
 
 # vols
+# volumes/db
 volumes/elastic
 volumes/elastic_exports
 volumes/elastic_exports.tar*
