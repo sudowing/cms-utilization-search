@@ -13,12 +13,11 @@ release:
 	docker tag $(CONTAINER_DEV_IMAGE) sudowing/cms-utilization-search:master
 	# docker tag $(CONTAINER_DEV_IMAGE) sudowing/cms-utilization-search:1.1.0
 	docker tag $(CONTAINER_DEV_IMAGE) sudowing/cms-utilization-search:latest
-	docker tag $(CONTAINER_DEV_IMAGE) sudowing/cms-utilization-search:edge
 
 publish:
+	docker tag $(CONTAINER_DEV_IMAGE) sudowing/cms-utilization-search:master
 	# docker push sudowing/cms-utilization-search:1.1.0
 	docker push sudowing/cms-utilization-search:latest
-	docker push sudowing/cms-utilization-search:edge
 
 stop:
 	@docker-compose stop
