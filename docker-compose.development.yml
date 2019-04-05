@@ -1,6 +1,6 @@
 version: "2"
 services:
-  cms-utilization-postgres:
+  cms-utilization-db:
     image: sudowing/cms-utilization-db:master
     restart: always
     env_file:
@@ -15,7 +15,7 @@ services:
       - "9200:9200"
       - "9300:9300"
     depends_on:
-    - cms-utilization-postgres
+    - cms-utilization-db
     volumes:
       - ./volumes/elastic:/usr/share/elasticsearch/data
     environment:

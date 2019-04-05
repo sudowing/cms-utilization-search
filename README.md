@@ -39,6 +39,16 @@ The index configuration and seeding process is all detailed (in great detail) be
 
 ---
 
+##  <a id="development"></a>Development
+
+```
+# starts your local cms-utilization-db && elastic service
+make run
+
+# seeds index from db via node scripts
+make seed
+```
+
 
 
 
