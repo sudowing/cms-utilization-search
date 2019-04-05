@@ -3,8 +3,8 @@ echo "UNCOMPRESSING ELASTIC INDEX EXPORTS [start]" \
 echo "" \
     &&
 tar -xvf /elastic_exports.tar.bz2 -C /tmp \
-#     &&
-echo "UNCOMPRESSING ELASTIC INDEX EXPORTS [start]" \
+    &&
+echo "UNCOMPRESSING ELASTIC INDEX EXPORTS [complete]" \
     &&
 echo "" \
     &&
