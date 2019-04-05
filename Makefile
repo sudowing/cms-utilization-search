@@ -13,12 +13,17 @@ release:
 	docker tag $(CONTAINER_DEV_IMAGE) sudowing/cms-utilization-search:master
 	# docker tag $(CONTAINER_DEV_IMAGE) sudowing/cms-utilization-search:1.1.0
 	docker tag $(CONTAINER_DEV_IMAGE) sudowing/cms-utilization-search:latest
-	docker tag $(CONTAINER_DEV_IMAGE) sudowing/cms-utilization-search:edge
 
 publish:
+	docker tag $(CONTAINER_DEV_IMAGE) sudowing/cms-utilization-search:master
 	# docker push sudowing/cms-utilization-search:1.1.0
 	docker push sudowing/cms-utilization-search:latest
-	docker push sudowing/cms-utilization-search:edge
+
+run:
+	@docker-compose -f docker-compose.yml -f docker-compose.development.yml up
+
+start:
+	@docker-compose -f docker-compose.yml up -d
 
 stop:
 	@docker-compose stop
@@ -26,76 +31,94 @@ stop:
 clean:
 	@docker-compose -f docker-compose.yml down --remove-orphan
 
-start:
-	@docker-compose -f docker-compose.yml up -d
+seed:
+	docker run \
+		--rm \
+		--net=host \
+		-e ES_SERVICE="${ES_SERVICE}" \
+		--entrypoint bash \
+		--name cms-elasticsearch-exporter \
+		sudowing/cms-utilization-search:latest \
+		-c 'bash /scripts/seed.index.sh'
+
+seed-keep-exports:
+	docker run \
+		--rm \
+		--net=host \
+		-v ${PWD}/volumes/elastic_exports:/tmp/elastic_exports \
+		-e ES_SERVICE="${ES_SERVICE}" \
+		--entrypoint bash \
+		--name cms-elasticsearch-exporter \
+		sudowing/cms-utilization-search:latest \
+		-c 'bash /scripts/seed.index.sh'
 
 export-services:
 	# remove previous backups
-	rm volumes/elastic_exports/services*.json
+	rm -f volumes/elastic_exports/services*.json
 	# EXPORT Index: services
 	docker run --net=host --rm -ti \
 		-v ${PWD}/volumes/elastic_exports:/tmp/elastic_exports \
 		sudowing/cms-utilization-search:latest \
 		--input=${ES_SERVICE}/services \
-		--output=/tmp/services.analyzer.json \
+		--output=/tmp/elastic_exports/services.analyzer.json \
 		--type=analyzer
 	docker run --net=host --rm -ti \
 		-v ${PWD}/volumes/elastic_exports:/tmp/elastic_exports \
 		sudowing/cms-utilization-search:latest \
 		--input=${ES_SERVICE}/services \
-		--output=/tmp/services.mapping.json \
+		--output=/tmp/elastic_exports/services.mapping.json \
 		--type=mapping
 	docker run --net=host --rm -ti \
 		-v ${PWD}/volumes/elastic_exports:/tmp/elastic_exports \
 		sudowing/cms-utilization-search:latest \
 		--input=${ES_SERVICE}/services \
-		--output=/tmp/services.data.json \
+		--output=/tmp/elastic_exports/services.data.json \
 		--type=data
 
 export-providers:
 	# remove previous backups
-	rm volumes/elastic_exports/providers*.json
+	rm -f volumes/elastic_exports/providers*.json
 	# EXPORT Index: providers
 	docker run --net=host --rm -ti \
 		-v ${PWD}/volumes/elastic_exports:/tmp/elastic_exports \
 		sudowing/cms-utilization-search:latest \
 		--input=${ES_SERVICE}/providers \
-		--output=/tmp/providers.analyzer.json \
+		--output=/tmp/elastic_exports/providers.analyzer.json \
 		--type=analyzer
 	docker run --net=host --rm -ti \
 		-v ${PWD}/volumes/elastic_exports:/tmp/elastic_exports \
 		sudowing/cms-utilization-search:latest \
 		--input=${ES_SERVICE}/providers \
-		--output=/tmp/providers.mapping.json \
+		--output=/tmp/elastic_exports/providers.mapping.json \
 		--type=mapping
 	docker run --net=host --rm -ti \
 		-v ${PWD}/volumes/elastic_exports:/tmp/elastic_exports \
 		sudowing/cms-utilization-search:latest \
 		--input=${ES_SERVICE}/providers \
-		--output=/tmp/providers.data.json \
+		--output=/tmp/elastic_exports/providers.data.json \
 		--type=data
 
 export-provider-performance:
 	# remove previous backups
-	rm volumes/elastic_exports/provider-performance*.json
+	rm -f volumes/elastic_exports/provider-performance*.json
 	# EXPORT Index: provider-performance
 	docker run --net=host --rm -ti \
 		-v ${PWD}/volumes/elastic_exports:/tmp/elastic_exports \
 		sudowing/cms-utilization-search:latest \
 		--input=${ES_SERVICE}/provider-performance \
-		--output=/tmp/provider-performance.analyzer.json \
+		--output=/tmp/elastic_exports/provider-performance.analyzer.json \
 		--type=analyzer
 	docker run --net=host --rm -ti \
 		-v ${PWD}/volumes/elastic_exports:/tmp/elastic_exports \
 		sudowing/cms-utilization-search:latest \
 		--input=${ES_SERVICE}/provider-performance \
-		--output=/tmp/provider-performance.mapping.json \
+		--output=/tmp/elastic_exports/provider-performance.mapping.json \
 		--type=mapping
 	docker run --net=host --rm -ti \
 		-v ${PWD}/volumes/elastic_exports:/tmp/elastic_exports \
 		sudowing/cms-utilization-search:latest \
 		--input=${ES_SERVICE}/provider-performance \
-		--output=/tmp/provider-performance.data.json \
+		--output=/tmp/elastic_exports/provider-performance.data.json \
 		--type=data
 
 export:
