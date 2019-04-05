@@ -35,8 +35,18 @@ seed:
 	docker run \
 		--rm \
 		--net=host \
+		-e ES_SERVICE="${ES_SERVICE}" \
+		--entrypoint bash \
+		--name cms-elasticsearch-exporter \
+		sudowing/cms-utilization-search:latest \
+		-c 'bash /scripts/seed.index.sh'
+
+seed-keep-exports:
+	docker run \
+		--rm \
+		--net=host \
 		-v ${PWD}/volumes/elastic_exports:/tmp/elastic_exports \
-		-e ES_SERVICE="http://localhost:9200" \
+		-e ES_SERVICE="${ES_SERVICE}" \
 		--entrypoint bash \
 		--name cms-elasticsearch-exporter \
 		sudowing/cms-utilization-search:latest \
