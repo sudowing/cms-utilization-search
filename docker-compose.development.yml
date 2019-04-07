@@ -1,7 +1,7 @@
 version: "2"
 services:
   cms-utilization-db:
-    image: sudowing/cms-utilization-db:master
+    image: sudowing/cms-utilization-db
     restart: always
     env_file:
       - './.env'
