@@ -4,12 +4,29 @@ const es = net.elasticsearch
 const settings = {
     index : {
         refresh_interval : "1m"
+    },
+    analysis: {
+        filter: {
+            autocomplete_filter: { 
+                type:     "edge_ngram",
+                min_gram: 1,
+                max_gram: 20
+            }
+        },
+        analyzer: {
+            autocomplete: {
+                type:      "custom",
+                tokenizer: "standard",
+                filter: [
+                    "lowercase",
+                    "autocomplete_filter" 
+                ]
+            }
+        }
     }
 }
 const mappings = {
     record: {
-
-
         properties: {
             hcpcs_code: {
                 type: "text",
@@ -22,12 +39,7 @@ const mappings = {
             },
             hcpcs_description: {
                 type: "text",
-                fields: {
-                    keyword: {
-                        type: "keyword",
-                        ignore_above: 256
-                    }
-                }
+                analyzer: "autocomplete"
             },
             hcpcs_drug_indicator: {
                 type: "text",
@@ -64,7 +76,6 @@ const mappings = {
                 type : "completion"
             }
         }
-
     }
 }
 
