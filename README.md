@@ -21,7 +21,7 @@ For __Autocomplete__, the goal is to provide a feature that will attempt to auto
 
 ##  <a id="quick-start"></a>Quick Start
 
-Elasticsearch requires the ability to create many memory-mapped areas. [(Details Here)](https://www.elastic.co/guide/en/elasticsearch/reference/6.7/_maximum_map_count_check.html). Before you run Elastic and attempt to seed it with 2M+ records, run the following to set the `max_map_count` to the min amount required by Elastic.
+Elasticsearch requires the ability to create many memory-mapped areas. [(Details Here)](https://www.elastic.co/guide/en/elasticsearch/reference/current/_maximum_map_count_check.html). Before you run Elastic and attempt to seed it with 2M+ records, run the following to set the `max_map_count` to the min amount required by Elastic.
 
 ```sh
 # increase max_map_count
