@@ -6,7 +6,7 @@
 While there are many benefits of seeding documents into Elastic, I'm doing so to leverage to specific features of Elastic:
 - [Geo Queries](https://www.elastic.co/guide/en/elasticsearch/reference/current/geo-queries.html)
 - [Suggesters (Search as you type)](https://www.elastic.co/guide/en/elasticsearch/reference/current/search-suggesters-completion.html)
-- [Autocomplete]([httvtml](https://www.elastic.co/guide/en/elasticsearch/guide/current/_index_time_search_as_you_type.html))
+- [Autocomplete](https://www.elastic.co/guide/en/elasticsearch/guide/current/_index_time_search_as_you_type.html)
 
 For __Geo Queries__, the goal is to provide the ability for clients to search for providers __or__ services by proximity or bounding-box. The plan is to either populate a map UI with records or allow the end users to search for records within a proximity of an address.
 
@@ -14,7 +14,7 @@ For __Suggesters__, the goal is to expose a method for clients to quickly identi
 
 For __Autocomplete__, the goal is to provide a feature that will attempt to autocomplete the search string being typed by the user -- when they are searching for HCPCS Services. There are 6022 HCPCS services in the database, so this feature will help them find the one they want to search for quickly.
 
-### Elastic provides native support for both of these features, as long as the documents are mapped correctly __prior__ to indexing.
+### Elastic provides native support for each of these features, as long as the documents are mapped correctly __prior__ to indexing.
 
 
 ---
